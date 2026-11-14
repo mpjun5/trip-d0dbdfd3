@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="dark light">
+<title>Trip Planner</title>
+<style>
+:root{
+  --bg:#0f1218; --surface:#171b24; --surface2:#1f2431; --border:#2b3243; --text:#e8ebf2; --muted:#98a1b5;
+  --accent:#7c9cff; --accent-ink:#0b1020; --accent-soft:rgba(124,156,255,.14);
+  --danger:#ff6b6b; --ok:#4cd4a0; --warn:#f5b84b; --shadow:0 8px 30px rgba(0,0,0,.35);
+  --radius:14px;
+}
+html[data-theme="light"]{
+  --bg:#f4f5f9; --surface:#ffffff; --surface2:#f0f2f8; --border:#dde1ec; --text:#171b26; --muted:#5e667a;
+  --accent:#4263eb; --accent-ink:#ffffff; --accent-soft:rgba(66,99,235,.10);
+  --danger:#d6336c; --ok:#0b8f63; --warn:#b36b00; --shadow:0 8px 30px rgba(20,30,60,.12);
+}
+html[data-theme="dark"]{color-scheme:dark}
+html[data-theme="light"]{color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom)}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+.topbar-in{max-width:1000px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:8px}
+.brand{font-weight:700;font-size:1.1rem;text-decoration:none;color:var(--text);display:flex;align-items:center;gap:8px;margin-right:auto}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 80px}
+.btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  white-space:nowrap;line-height:1.2;text-decoration:none;color:var(--text);min-height:38px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+.btn.danger:hover{border-color:var(--danger)}
+.btn.sm{padding:5px 10px;min-height:32px;font-size:.88rem;border-radius:8px}
+.btn.icon{padding:5px 9px;min-height:32px;min-width:34px;justify-content:center;border-radius:8px;background:transparent}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn.ghost{background:transparent}
+.muted{color:var(--muted)}
+h1{font-size:1.7rem;margin:0;line-height:1.2}
+h2{font-size:1.1rem;margin:0}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.trip-card{cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,transform .15s}
+.trip-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.trip-card.past{opacity:.62}
+.trip-top{display:flex;gap:12px;align-items:flex-start}
+.emoji{font-size:2rem;line-height:1;background:var(--surface2);border-radius:12px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;flex:none}
+.trip-name{font-weight:650;font-size:1.1rem;line-height:1.25;overflow-wrap:anywhere}
+.trip-meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.92rem;color:var(--muted)}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.8rem;font-weight:600;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.badge.ongoing{background:rgba(76,212,160,.16);color:var(--ok)}
+.badge.past{background:var(--surface2);color:var(--muted)}
+.badge.warn{background:rgba(245,184,75,.16);color:var(--warn)}
+.card-actions{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap}
+.empty{text-align:center;padding:56px 20px;border:1px dashed var(--border);border-radius:var(--radius);background:var(--surface)}
+.empty .big{font-size:3.4rem}
+.empty h2{font-size:1.4rem;margin:8px 0}
+.empty p{max-width:420px;margin:0 auto 20px;color:var(--muted)}
+.crumb{display:inline-block;margin-bottom:10px;color:var(--muted);text-decoration:none;font-size:.92rem}
+.crumb:hover{color:var(--accent)}
+.trip-head{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+.trip-head .info{flex:1;min-width:200px}
+.trip-head .actions{display:flex;gap:6px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--border);margin-bottom:18px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;text-decoration:none;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;font-weight:550}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.day-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.day-head h2{margin-right:auto}
+.acts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.act{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border-radius:10px;border:1px solid transparent}
+.act-time{width:52px;flex:none;font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;padding-top:1px}
+.act-main{flex:1;min-width:0}
+.act-title{font-weight:600;overflow-wrap:anywhere}
+.act-meta{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:.88rem;color:var(--muted)}
+.act-notes{font-size:.9rem;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;margin-top:2px}
+.act-btns{display:flex;gap:0;flex:none}
+.day-empty{color:var(--muted);font-size:.92rem;padding:4px 0}
+.sec-head{display:flex;align-items:center;gap:10px;margin:22px 0 10px;flex-wrap:wrap}
+.sec-head h2{margin-right:auto}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.row .ico{font-size:1.4rem;width:34px;text-align:center;flex:none}
+.row .main{flex:1;min-width:0}
+.row .title{font-weight:600;overflow-wrap:anywhere}
+.row .sub{font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+.row .amt{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stat{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums}
+.bar-row{display:grid;grid-template-columns:120px 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:.95rem}
+.bar{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rate-row{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.rate-row input{width:110px}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;width:100%;font-size:16px;min-height:42px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+textarea{resize:vertical;min-height:90px}
+.notes-area{min-height:50vh;line-height:1.6}
+.check-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.check-row input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--accent);flex:none}
+.check-row span{flex:1;overflow-wrap:anywhere}
+.check-row.done span{text-decoration:line-through;color:var(--muted)}
+.add-row{display:flex;gap:8px;margin-bottom:12px}
+.progress{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:8px 0 16px}
+.progress>i{display:block;height:100%;background:var(--ok)}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(5,8,14,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow-y:auto;padding:20px}
+.modal h2{font-size:1.25rem;margin-bottom:14px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field>label{font-size:.85rem;color:var(--muted);font-weight:600}
+.field small{color:var(--muted)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chips button{border:1px solid var(--border);background:var(--surface2);border-radius:8px;font-size:1.2rem;cursor:pointer;padding:2px 6px}
+.chips button:hover{border-color:var(--accent)}
+.form-error{grid-column:1/-1;color:var(--danger);font-size:.92rem;min-height:1.2em}
+.modal-actions{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 24px);max-width:460px}
+.toast{background:var(--text);color:var(--bg);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;font-size:.95rem}
+.toast button{background:none;border:0;color:var(--accent);font-weight:700;cursor:pointer;padding:0}
+html[data-theme="dark"] .toast button{color:#2f4fd6}
+.banner{background:rgba(245,184,75,.14);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+#printRoot{display:none}
+@media (max-width:640px){
+  .two{grid-template-columns:1fr}
+  .form{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:90px 1fr auto}
+  .overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:18px 18px 0 0;max-width:none;max-height:92vh;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  h1{font-size:1.4rem}
+  .topbar-in .lbl{display:none}
+  .act{flex-wrap:wrap}
+  .act-time{width:auto}
+  .act-btns{width:100%;justify-content:flex-end}
+}
+/* print */
+@media print{
+  :root,html[data-theme]{--bg:#fff;--text:#000;--muted:#444;--border:#bbb;--surface:#fff;--surface2:#f3f3f3}
+  body{background:#fff;color:#000;font-size:11pt}
+  body.has-print #app,body.has-print .topbar,body.has-print .toasts,body.has-print #modalRoot{display:none!important}
+  body.has-print #printRoot{display:block}
+  .pr-title{font-size:20pt;margin:0 0 2px}
+  .pr-sub{color:#444;margin:0 0 12px}
+  .pr-day{break-inside:avoid;margin:0 0 12px;border:1px solid #bbb;border-radius:6px;padding:8px 10px}
+  .pr-day h3{margin:0 0 6px;font-size:12pt}
+  .pr-day table,.pr-book table{width:100%;border-collapse:collapse}
+  .pr-day td,.pr-book td,.pr-book th{padding:3px 6px;vertical-align:top;border-top:1px solid #ddd;font-size:10.5pt;text-align:left}
+  .pr-day tr:first-child td{border-top:0}
+  .pr-book{break-inside:avoid;margin-top:16px}
+  .pr-book h3{font-size:12pt;margin:0 0 6px}
+  a{color:#000}
+}
+#printRoot .pr-title{font-size:1.4rem}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="#/">✈️ <span>Trip Planner</span></a>
+  <button class="btn sm" data-act="export" title="Download all data as a JSON file">⬇️ <span class="lbl">Export</span></button>
+  <button class="btn sm" data-act="import" title="Load data from a JSON backup">⬆️ <span class="lbl">Import</span></button>
+  <button class="btn sm" data-act="toggle-theme" id="themeBtn" title="Switch light / dark theme">🌙</button>
+</div></header>
+<main class="wrap" id="app"></main>
+<div id="printRoot"></div>
+<div id="modalRoot"></div>
+<div class="toasts" id="toasts"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- constants & helpers ---------- */
+var KEY='tripPlanner.v1', THEME_KEY='tripPlanner.theme';
+var CATS=['Flights','Accommodation','Transport','Food','Activities','Shopping','Other'];
+var BTYPES={
+  flight:{label:'Flight',icon:'✈️',cat:'Flights'},
+  hotel:{label:'Hotel',icon:'🏨',cat:'Accommodation'},
+  transport:{label:'Transport',icon:'🚆',cat:'Transport'},
+  other:{label:'Other',icon:'🎟️',cat:'Other'}
+};
+var BORDER=['flight','hotel','transport','other'];
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var CURRENCIES=['SGD','USD','EUR','GBP','JPY','AUD','MYR','IDR','THB','VND','KRW','CNY','HKD','TWD','NZD','CAD','CHF','INR','PHP','AED'];
+var EMOJIS=['✈️','🏝️','🏔️','🏙️','🗼','🌏','🚆','🏕️','🎿','🍜','🚗','🎒'];
+var MAX_DAYS=366;
+
+function $(s,r){return (r||document).querySelector(s);}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function uid(p){return (p||'i')+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function pad(n){return (n<10?'0':'')+n;}
+function isDate(s){
+  if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;
+  var t=Date.parse(s+'T00:00:00Z'); if(isNaN(t))return false;
+  return new Date(t).toISOString().slice(0,10)===s;
+}
+function ms(s){return Date.parse(s+'T00:00:00Z');}
+function addDays(s,n){return new Date(ms(s)+n*86400000).toISOString().slice(0,10);}
+function diffDays(a,b){return Math.round((ms(b)-ms(a))/86400000);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function parts(s){var d=new Date(ms(s));return {d:d.getUTCDate(),m:d.getUTCMonth(),y:d.getUTCFullYear(),w:d.getUTCDay()};}
+function fmtShort(s){var p=parts(s);return DOW[p.w]+' '+p.d+' '+MON[p.m];}
+function fmtRange(a,b){
+  var x=parts(a),y=parts(b);
+  if(a===b)return x.d+' '+MON[x.m]+' '+x.y;
+  if(x.y!==y.y)return x.d+' '+MON[x.m]+' '+x.y+' – '+y.d+' '+MON[y.m]+' '+y.y;
+  if(x.m!==y.m)return x.d+' '+MON[x.m]+' – '+y.d+' '+MON[y.m]+' '+y.y;
+  return x.d+' – '+y.d+' '+MON[y.m]+' '+y.y;
+}
+function fmtDT(v){
+  if(!v)return '';
+  var m=/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/.exec(v); if(!m||!isDate(m[1]))return v;
+  return fmtShort(m[1])+(m[2]?' · '+m[2]:'');
+}
+function num(v){if(v===''||v==null)return null;var n=parseFloat(v);return isFinite(n)&&n>=0?n:null;}
+function money(n,cur){return cur+' '+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function tripDays(t){return diffDays(t.start,t.end)+1;}
+function safeUrl(u){
+  u=String(u||'').trim(); if(!u)return '';
+  if(!/^https?:\/\//i.test(u)){ if(/^[a-z][a-z0-9+.-]*:/i.test(u))return ''; u='https://'+u; }
+  try{var x=new URL(u); return (x.protocol==='http:'||x.protocol==='https:')?x.href:'';}catch(e){return '';}
+}
+function cleanId(s){var c=String(s||'').replace(/[^\w-]/g,'');return c||uid('x');}
+function cleanCur(s){s=String(s||'').trim().toUpperCase().replace(/[^A-Z]/g,'').slice(0,5);return s;}
+function firstGrapheme(s){
+  s=String(s||'').trim();
+  try{ if(window.Intl&&Intl.Segmenter){var it=new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(s)[Symbol.iterator]().next(); return it.value?it.value.segment:'';} }catch(e){}
+  return Array.from(s).slice(0,2).join('');
+}
+function countdown(t){
+  var today=todayStr();
+  if(t.end<today)return {text:'past',cls:'past'};
+  if(t.start<=today)return {text:'ongoing',cls:'ongoing'};
+  var n=diffDays(today,t.start);
+  return {text:n===1?'tomorrow':'in '+n+' days',cls:''};
+}
+
+/* ---------- state ---------- */
+var state={trips:[]}, storageOK=true;
+
+function normAct(a){
+  if(!a||typeof a!=='object'||!String(a.title||'').trim())return null;
+  return {id:cleanId(a.id),time:/^\d{2}:\d{2}$/.test(a.time||'')?a.time:'',title:String(a.title).slice(0,300),
+    place:String(a.place||'').slice(0,300),notes:String(a.notes||'').slice(0,5000),cost:num(a.cost),
+    currency:cleanCur(a.currency),link:String(a.link||'').slice(0,1000)};
+}
+function normBooking(b){
+  if(!b||typeof b!=='object'||!String(b.title||'').trim())return null;
+  return {id:cleanId(b.id),type:BTYPES[b.type]?b.type:'other',title:String(b.title).slice(0,300),
+    datetime:/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(b.datetime||'')?b.datetime:'',conf:String(b.conf||'').slice(0,100),
+    cost:num(b.cost),currency:cleanCur(b.currency),notes:String(b.notes||'').slice(0,5000)};
+}
+function normTrip(t){
+  if(!t||typeof t!=='object'||!String(t.name||'').trim()||!isDate(t.start)||!isDate(t.end)||t.end<t.start)return null;
+  if(diffDays(t.start,t.end)+1>MAX_DAYS)return null;
+  var home=cleanCur(t.budget&&t.budget.currency)||'SGD';
+  var out={id:cleanId(t.id),name:String(t.name).trim().slice(0,120),destination:String(t.destination||'').slice(0,200),
+    start:t.start,end:t.end,travellers:String(t.travellers||'').slice(0,200),emoji:firstGrapheme(t.emoji)||'✈️',
+    days:{},bookings:[],budget:{currency:home,rates:{},expenses:[]},packing:[],notes:String(t.notes||'').slice(0,100000)};
+  if(t.days&&typeof t.days==='object')Object.keys(t.days).forEach(function(d){
+    if(!isDate(d)||!Array.isArray(t.days[d]))return;
+    var list=t.days[d].map(normAct).filter(Boolean); if(list.length)out.days[d]=list;
+  });
+  if(Array.isArray(t.bookings))out.bookings=t.bookings.map(normBooking).filter(Boolean);
+  var b=t.budget||{};
+  if(b.rates&&typeof b.rates==='object')Object.keys(b.rates).forEach(function(c){
+    var cc=cleanCur(c),r=parseFloat(b.rates[c]); if(cc&&isFinite(r)&&r>0)out.budget.rates[cc]=r;
+  });
+  if(Array.isArray(b.expenses))b.expenses.forEach(function(e){
+    if(!e||typeof e!=='object')return; var amt=num(e.amount); if(amt==null)return;
+    out.budget.expenses.push({id:cleanId(e.id),title:String(e.title||'').slice(0,300),category:CATS.indexOf(e.category)>=0?e.category:'Other',amount:amt,currency:cleanCur(e.currency)||home});
+  });
+  if(Array.isArray(t.packing))t.packing.forEach(function(p){
+    if(p&&typeof p==='object'&&String(p.text||'').trim())out.packing.push({id:cleanId(p.id),text:String(p.text).slice(0,200),done:!!p.done});
+  });
+  return out;
+}
+function normState(o){
+  var trips=(o&&Array.isArray(o.trips)?o.trips:[]).map(normTrip).filter(Boolean);
+  var seen={}; trips.forEach(function(t){while(seen[t.id])t.id=uid('t');seen[t.id]=1;});
+  return {trips:trips};
+}
+function load(){
+  try{var raw=localStorage.getItem(KEY); if(raw)state=normState(JSON.parse(raw));}
+  catch(e){ state={trips:[]}; }
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify({version:1,trips:state.trips})); if(!storageOK){storageOK=true;}}
+  catch(e){storageOK=false;}
+}
+function getTrip(id){for(var i=0;i<state.trips.length;i++)if(state.trips[i].id===id)return state.trips[i];return null;}
+function sortedTrips(){return state.trips.slice().sort(function(a,b){return a.start<b.start?-1:a.start>b.start?1:(a.end<b.end?-1:a.end>b.end?1:0);});}
+function homeCur(t){return t.budget.currency||'SGD';}
+function curOf(t,x){return x.currency||homeCur(t);}
+function rateOf(t,c){return c===homeCur(t)?1:(t.budget.rates[c]||null);}
+function toHome(t,amt,c){var r=rateOf(t,c);return amt*(r==null?1:r);}
+
+/* ---------- theme ---------- */
+function applyTheme(th){
+  document.documentElement.setAttribute('data-theme',th);
+  $('#themeBtn').textContent=th==='dark'?'🌙':'☀️';
+}
+function initTheme(){
+  var th='dark'; try{th=localStorage.getItem(THEME_KEY)||'dark';}catch(e){}
+  applyTheme(th==='light'?'light':'dark');
+}
+
+/* ---------- toast / modal ---------- */
+var undoSnap=null;
+function snapshot(){undoSnap=JSON.stringify({trips:state.trips});}
+function toast(msg,withUndo){
+  $('#toasts').innerHTML='';
+  var el=document.createElement('div'); el.className='toast';
+  el.innerHTML='<span>'+esc(msg)+'</span>'+(withUndo?'<button type="button">Undo</button>':'');
+  $('#toasts').appendChild(el);
+  var snap=undoSnap;
+  var timer=setTimeout(function(){el.remove();},withUndo?7000:3200);
+  if(withUndo)el.querySelector('button').onclick=function(){
+    clearTimeout(timer);el.remove();
+    try{state=normState(JSON.parse(snap));save();render(true);}catch(e){}
+  };
+}
+function closeModal(){$('#modalRoot').innerHTML='';document.removeEventListener('keydown',escKey);}
+function escKey(e){if(e.key==='Escape')closeModal();}
+function showModal(inner){
+  var root=$('#modalRoot');
+  root.innerHTML='<div class="overlay" data-overlay><div class="modal" role="dialog" aria-modal="true">'+inner+'</div></div>';
+  root.querySelector('[data-overlay]').addEventListener('mousedown',function(e){if(e.target===this)closeModal();});
+  document.addEventListener('keydown',escKey);
+  return root.querySelector('.modal');
+}
+function fieldHTML(f,v){
+  var id='f_'+f.name, val=v[f.name]; if(val==null)val=''; var input;
+  if(f.type==='select'){
+    input='<select id="'+id+'" name="'+f.name+'">'+f.options.map(function(o){
+      var ov=typeof o==='string'?o:o.value, ol=typeof o==='string'?o:o.label;
+      return '<option value="'+esc(ov)+'"'+(String(val)===String(ov)?' selected':'')+'>'+esc(ol)+'</option>';}).join('')+'</select>';
+  }else if(f.type==='textarea'){
+    input='<textarea id="'+id+'" name="'+f.name+'" rows="3">'+esc(val)+'</textarea>';
+  }else{
+    input='<input id="'+id+'" name="'+f.name+'" type="'+(f.type||'text')+'" value="'+esc(val)+'"'+
+      (f.required?' required':'')+(f.min?' min="'+esc(f.min)+'"':'')+(f.max?' max="'+esc(f.max)+'"':'')+
+      (f.step?' step="'+f.step+'"':'')+(f.placeholder?' placeholder="'+esc(f.placeholder)+'"':'')+
+      (f.list?' list="'+f.list+'"':'')+(f.maxlength?' maxlength="'+f.maxlength+'"':'')+
+      (f.inputmode?' inputmode="'+f.inputmode+'"':'')+' autocomplete="off">';
+  }
+  var extra='';
+  if(f.chips)extra='<div class="chips">'+f.chips.map(function(c){return '<button type="button" data-chip="'+esc(f.name)+'" data-v="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+'</div>';
+  return '<div class="field'+(f.full?' full':'')+'"><label for="'+id+'">'+esc(f.label)+(f.required?' *':'')+'</label>'+input+extra+(f.hint?'<small>'+esc(f.hint)+'</small>':'')+'</div>';
+}
+/* opts: title, fields, values, submitLabel, onSubmit(vals)->error string | undefined */
+function openForm(opts){
+  var v=opts.values||{};
+  var html='<h2>'+esc(opts.title)+'</h2><form class="form" novalidate>'+opts.fields.map(function(f){return fieldHTML(f,v);}).join('')+
+    '<div class="form-error" role="alert"></div><div class="modal-actions"><button type="button" class="btn" data-cancel>Cancel</button>'+
+    '<button type="submit" class="btn primary">'+esc(opts.submitLabel||'Save')+'</button></div></form>'+
+    '<datalist id="curList">'+CURRENCIES.map(function(c){return '<option value="'+c+'">';}).join('')+'</datalist>';
+  var m=showModal(html), form=m.querySelector('form'), err=m.querySelector('.form-error');
+  m.querySelector('[data-cancel]').onclick=closeModal;
+  m.addEventListener('click',function(e){
+    var b=e.target.closest('[data-chip]'); if(!b)return;
+    form.elements[b.getAttribute('data-chip')].value=b.getAttribute('data-v');
+  });
+  form.addEventListener('submit',function(e){
+    e.preventDefault(); var vals={};
+    opts.fields.forEach(function(f){var el=form.elements[f.name];vals[f.name]=el.value.trim();});
+    for(var i=0;i<opts.fields.length;i++){
+      var f=opts.fields[i];
+      if(f.required&&!vals[f.name]){err.textContent=f.label+' is required.';form.elements[f.name].focus();return;}
+    }
+    var r=opts.onSubmit(vals);
+    if(typeof r==='string'){err.textContent=r;return;}
+    closeModal();
+  });
+  var first=form.querySelector('input:not([type=hidden]),select,textarea'); if(first&&!/Mobi|iPad|iPhone/.test(navigator.userAgent))first.focus();
+}
+function openConfirm(o){
+  var m=showModal('<h2>'+esc(o.title)+'</h2><p class="muted" style="margin:0 0 18px">'+esc(o.message)+'</p>'+
+    '<div class="modal-actions" style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" data-cancel>Cancel</button>'+
+    (o.alt?'<button class="btn" data-alt>'+esc(o.alt)+'</button>':'')+
+    '<button class="btn '+(o.danger?'danger':'primary')+'" data-ok>'+esc(o.confirmLabel||'OK')+'</button></div>');
+  m.querySelector('[data-cancel]').onclick=closeModal;
+  m.querySelector('[data-ok]').onclick=function(){closeModal();o.onConfirm();};
+  if(o.alt)m.querySelector('[data-alt]').onclick=function(){closeModal();o.onAlt();};
+}
+
+/* ---------- costs ---------- */
+function allCosts(t){
+  var out=[], home=homeCur(t);
+  t.budget.expenses.forEach(function(e){out.push({src:'Expenses',cat:e.category,amt:e.amount,cur:e.currency||home});});
+  Object.keys(t.days).forEach(function(d){t.days[d].forEach(function(a){
+    if(a.cost)out.push({src:'Activities',cat:'Activities',amt:a.cost,cur:curOf(t,a)});});});
+  t.bookings.forEach(function(b){if(b.cost)out.push({src:'Bookings',cat:BTYPES[b.type].cat,amt:b.cost,cur:curOf(t,b)});});
+  return out;
+}
+function usedCurrencies(t){
+  var set={}; allCosts(t).forEach(function(c){if(c.cur!==homeCur(t))set[c.cur]=1;});
+  Object.keys(t.budget.rates).forEach(function(c){if(c!==homeCur(t))set[c]=1;});
+  return Object.keys(set).sort();
+}
+function dayList(t){
+  var out=[],n=tripDays(t);
+  for(var i=0;i<n;i++)out.push(addDays(t.start,i));
+  return out;
+}
+
+/* ---------- routing ---------- */
+var TABS=[['itinerary','🗓️ Itinerary'],['bookings','🎫 Bookings'],['budget','💰 Budget'],['packing','🎒 Packing'],['notes','📝 Notes']];
+function route(){
+  var h=location.hash.replace(/^#\/?/,'').split('/');
+  if(h[0]==='trip'&&h[1]){
+    var tab=TABS.some(function(x){return x[0]===h[2];})?h[2]:'itinerary';
+    return {name:'trip',id:decodeURIComponent(h[1]),tab:tab};
+  }
+  return {name:'home'};
+}
+function go(hash){if(location.hash===hash)render();else location.hash=hash;}
+var focusAfter=null, lastRouteKey='';
+
+/* ---------- views ---------- */
+function homeView(){
+  var trips=sortedTrips();
+  var head='<div class="page-head"><div><h1>Your trips</h1><div class="muted">'+(trips.length?trips.length+(trips.length===1?' trip':' trips'):'Plan your next adventure')+'</div></div>'+
+    '<button class="btn primary" data-act="new-trip">＋ Add new trip</button></div>';
+  if(!trips.length)return head.replace(/<button[^]*?<\/button>/,'')+
+    '<div class="empty"><div class="big">🧳</div><h2>No trips yet</h2><p>Add your first trip with its dates, then build a day-by-day itinerary, track bookings, set a budget and keep a packing list.</p>'+
+    '<button class="btn primary" data-act="new-trip">＋ Add new trip</button></div>';
+  return head+'<div class="grid">'+trips.map(function(t){
+    var c=countdown(t),n=tripDays(t);
+    return '<article class="card trip-card'+(c.cls==='past'?' past':'')+'" data-act="open-trip" data-id="'+esc(t.id)+'">'+
+      '<div class="trip-top"><div class="emoji">'+esc(t.emoji)+'</div><div style="min-width:0;flex:1"><div class="trip-name">'+esc(t.name)+'</div>'+
+      (t.destination?'<div class="muted">📍 '+esc(t.destination)+'</div>':'')+'</div><span class="badge '+c.cls+'">'+esc(c.text)+'</span></div>'+
+      '<div class="trip-meta"><span>📅 '+esc(fmtRange(t.start,t.end))+'</span><span>'+n+(n===1?' day':' days')+'</span>'+(t.travellers?'<span>👥 '+esc(t.travellers)+'</span>':'')+'</div>'+
+      '<div class="card-actions"><button class="btn sm" data-act="edit-trip" data-id="'+esc(t.id)+'">Edit</button>'+
+      '<button class="btn sm" data-act="dup-trip" data-id="'+esc(t.id)+'">Duplicate</button>'+
+      '<button class="btn sm danger" data-act="del-trip" data-id="'+esc(t.id)+'">Delete</button></div></article>';
+  }).join('')+'</div>';
+}
+function tripHead(t,tab){
+  var c=countdown(t),n=tripDays(t);
+  return '<a class="crumb" href="#/">← All trips</a><div class="trip-head"><div class="emoji">'+esc(t.emoji)+'</div>'+
+    '<div class="info"><h1>'+esc(t.name)+'</h1><div class="muted">'+(t.destination?'📍 '+esc(t.destination)+' · ':'')+esc(fmtRange(t.start,t.end))+' · '+n+(n===1?' day':' days')+
+    (t.travellers?' · 👥 '+esc(t.travellers):'')+' <span class="badge '+c.cls+'">'+esc(c.text)+'</span></div></div>'+
+    '<div class="actions"><button class="btn sm" data-act="print">🖨️ Print</button><button class="btn sm" data-act="edit-trip" data-id="'+esc(t.id)+'">Edit trip</button></div></div>'+
+    '<nav class="tabs">'+TABS.map(function(x){return '<a class="tab'+(x[0]===tab?' active':'')+'" href="#/trip/'+encodeURIComponent(t.id)+'/'+x[0]+'">'+x[1]+'</a>';}).join('')+'</nav>';
+}
+function actHTML(t,date,list,i){
+  var a=list[i], home=homeCur(t), meta=[];
+  if(a.place)meta.push('<span>📍 '+esc(a.place)+'</span>');
+  if(a.cost)meta.push('<span>💰 '+esc(money(a.cost,curOf(t,a)))+'</span>');
+  var u=safeUrl(a.link); if(u){var host=''; try{host=new URL(u).hostname.replace(/^www\./,'');}catch(e){} meta.push('<span>🔗 <a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+esc(host||'link')+'</a></span>');}
+  var at='data-day="'+date+'" data-id="'+esc(a.id)+'"';
+  return '<li class="act"><div class="act-time">'+esc(a.time||'—')+'</div><div class="act-main"><div class="act-title">'+esc(a.title)+'</div>'+
+    (meta.length?'<div class="act-meta">'+meta.join('')+'</div>':'')+(a.notes?'<div class="act-notes">'+esc(a.notes)+'</div>':'')+'</div>'+
+    '<div class="act-btns"><button class="btn icon" data-act="up-act" '+at+(i===0?' disabled':'')+' title="Move up" aria-label="Move up">↑</button>'+
+    '<button class="btn icon" data-act="down-act" '+at+(i===list.length-1?' disabled':'')+' title="Move down" aria-label="Move down">↓</button>'+
+    '<button class="btn icon" data-act="edit-act" '+at+' title="Edit" aria-label="Edit">✎</button>'+
+    '<button class="btn icon" data-act="del-act" '+at+' title="Delete" aria-label="Delete">✕</button></div></li>';
+}
+function dayCard(t,date,label,warn){
+  var list=t.days[date]||[], sub=0, home=homeCur(t);
+  list.forEach(function(a){if(a.cost)sub+=toHome(t,a.cost,curOf(t,a));});
+  var today=todayStr()===date;
+  return '<section class="card" data-date="'+date+'"><div class="day-head"><h2>'+esc(label)+'</h2>'+
+    (today?'<span class="badge ongoing">today</span>':'')+(warn?'<span class="badge warn">outside trip dates</span>':'')+
+    (sub?'<span class="muted" style="font-size:.9rem">'+esc(money(sub,home))+'</span>':'')+
+    (list.length>1?'<button class="btn sm ghost" data-act="sort-day" data-day="'+date+'" title="Sort this day by time">Sort by time</button>':'')+
+    '<button class="btn sm" data-act="add-act" data-day="'+date+'">＋ Activity</button></div>'+
+    (list.length?'<ul class="acts">'+list.map(function(a,i){return actHTML(t,date,list,i);}).join('')+'</ul>':'<div class="day-empty">Nothing planned yet.</div>')+'</section>';
+}
+function itineraryTab(t){
+  var days=dayList(t), inRange={}; days.forEach(function(d){inRange[d]=1;});
+  var orphans=Object.keys(t.days).filter(function(d){return !inRange[d];}).sort();
+  var count=0; Object.keys(t.days).forEach(function(d){count+=t.days[d].length;});
+  var html='<div class="muted" style="margin-bottom:12px">'+days.length+(days.length===1?' day':' days')+' · '+count+(count===1?' activity':' activities')+'</div><div class="stack">'+
+    days.map(function(d,i){return dayCard(t,d,'Day '+(i+1)+' · '+fmtShort(d),false);}).join('')+'</div>';
+  if(orphans.length)html+='<div class="sec-head"><h2>Outside the current trip dates</h2></div><p class="muted" style="margin-top:0">These activities belong to dates you removed from the trip. They are kept in case you extend the dates again. Edit an activity to move it to a day inside the trip.</p><div class="stack">'+
+    orphans.map(function(d){return dayCard(t,d,fmtShort(d)+' '+parts(d).y,true);}).join('')+'</div>';
+  return html;
+}
+function bookingsTab(t){
+  var head='<div class="page-head"><h2>Bookings</h2><button class="btn primary" data-act="add-booking">＋ Add booking</button></div>';
+  if(!t.bookings.length)return head+'<div class="empty"><div class="big">🎫</div><h2>No bookings yet</h2><p>Keep flights, hotels, transport and tickets with confirmation numbers in one place.</p></div>';
+  var out=head;
+  BORDER.forEach(function(k){
+    var items=t.bookings.filter(function(b){return b.type===k;}).sort(function(a,b){return (a.datetime||'9')<(b.datetime||'9')?-1:1;});
+    if(!items.length)return;
+    out+='<div class="sec-head"><h2>'+BTYPES[k].icon+' '+BTYPES[k].label+(k==='other'?'':'s')+'</h2></div><div class="list">'+items.map(function(b){
+      var at='data-id="'+esc(b.id)+'"';
+      return '<div class="row"><div class="ico">'+BTYPES[k].icon+'</div><div class="main"><div class="title">'+esc(b.title)+'</div>'+
+        '<div class="sub">'+[b.datetime?'🕒 '+esc(fmtDT(b.datetime)):'',b.conf?'# '+esc(b.conf):''].filter(Boolean).join(' · ')+'</div>'+
+        (b.notes?'<div class="sub" style="white-space:pre-wrap">'+esc(b.notes)+'</div>':'')+'</div>'+
+        (b.cost?'<div class="amt">'+esc(money(b.cost,curOf(t,b)))+'</div>':'')+
+        '<div class="act-btns"><button class="btn icon" data-act="edit-booking" '+at+' title="Edit" aria-label="Edit">✎</button>'+
+        '<button class="btn icon" data-act="del-booking" '+at+' title="Delete" aria-label="Delete">✕</button></div></div>';
+    }).join('')+'</div>';
+  });
+  return out;
+}
+function budgetTab(t){
+  var home=homeCur(t), costs=allCosts(t), total=0, byCat={}, bySrc={}, missing={};
+  costs.forEach(function(c){
+    var v=toHome(t,c.amt,c.cur); total+=v; byCat[c.cat]=(byCat[c.cat]||0)+v; bySrc[c.src]=(bySrc[c.src]||0)+v;
+    if(c.cur!==home&&!t.budget.rates[c.cur])missing[c.cur]=1;
+  });
+  var cats=CATS.filter(function(c){return byCat[c];}); 
+  var max=0; cats.forEach(function(c){if(byCat[c]>max)max=byCat[c];});
+  var missingList=Object.keys(missing);
+  var html='<div class="two"><div class="card"><div class="muted">Total · home currency <strong>'+esc(home)+'</strong></div><div class="stat">'+esc(money(total,home))+'</div>'+
+    '<div class="muted" style="font-size:.9rem">'+['Expenses','Activities','Bookings'].map(function(s){return s+' '+money(bySrc[s]||0,home);}).join(' · ')+'</div>'+
+    '<div style="margin-top:12px"><button class="btn sm" data-act="set-home">Change home currency</button></div></div>'+
+    '<div class="card"><h2 style="margin-bottom:6px">By category</h2>'+
+    (cats.length?cats.map(function(c){return '<div class="bar-row"><span>'+esc(c)+'</span><div class="bar"><i style="width:'+Math.max(2,Math.round(byCat[c]/max*100))+'%"></i></div><span>'+esc(money(byCat[c],home))+'</span></div>';}).join(''):'<div class="muted">No costs yet. Add expenses below, or costs on activities and bookings.</div>')+'</div></div>';
+  var cur=usedCurrencies(t);
+  html+='<div class="sec-head"><h2>Exchange rates</h2><button class="btn sm" data-act="add-rate">＋ Add currency</button></div><div class="card">'+
+    (missingList.length?'<div class="banner">No rate set for '+esc(missingList.join(', '))+' — it is counted 1:1 until you set one.</div>':'')+
+    (cur.length?cur.map(function(c){return '<div class="rate-row"><span>1 '+esc(c)+' =</span><input type="number" inputmode="decimal" min="0" step="any" data-rate="'+esc(c)+'" value="'+(t.budget.rates[c]||'')+'" placeholder="rate" aria-label="Rate for '+esc(c)+'"><span>'+esc(home)+'</span></div>';}).join(''):
+      '<div class="muted">All costs are in '+esc(home)+'. Use another currency on any cost and its rate will appear here.</div>')+'</div>';
+  html+='<div class="sec-head"><h2>Expenses</h2><button class="btn primary" data-act="add-exp">＋ Add expense</button></div>';
+  if(!t.budget.expenses.length)html+='<div class="muted">No expenses yet. Activity and booking costs are included in the totals automatically.</div>';
+  else html+='<div class="list">'+t.budget.expenses.map(function(e){
+    var at='data-id="'+esc(e.id)+'"', cur=e.currency||home;
+    return '<div class="row"><div class="main"><div class="title">'+esc(e.title||e.category)+'</div><div class="sub">'+esc(e.category)+
+      (cur!==home?' · ≈ '+esc(money(toHome(t,e.amount,cur),home)):'')+'</div></div><div class="amt">'+esc(money(e.amount,cur))+'</div>'+
+      '<div class="act-btns"><button class="btn icon" data-act="edit-exp" '+at+' title="Edit" aria-label="Edit">✎</button><button class="btn icon" data-act="del-exp" '+at+' title="Delete" aria-label="Delete">✕</button></div></div>';
+  }).join('')+'</div>';
+  return html;
+}
+function packingTab(t){
+  var done=t.packing.filter(function(p){return p.done;}).length, n=t.packing.length;
+  var html='<form class="add-row" data-form="pack"><input id="packInput" type="text" placeholder="Add an item (e.g. Passport)" maxlength="200" autocomplete="off" aria-label="New packing item"><button class="btn primary" type="submit">Add</button></form>';
+  if(!n)return html+'<div class="empty"><div class="big">🎒</div><h2>Nothing to pack yet</h2><p>Type an item above and press Enter.</p></div>';
+  html+='<div class="page-head" style="margin-bottom:0"><div class="muted">'+done+' of '+n+' packed</div><button class="btn sm" data-act="reset-ticks">Reset ticks</button></div>'+
+    '<div class="progress"><i style="width:'+Math.round(done/n*100)+'%"></i></div><div class="list">'+
+    t.packing.map(function(p){return '<div class="check-row'+(p.done?' done':'')+'"><input type="checkbox" data-pack="'+esc(p.id)+'"'+(p.done?' checked':'')+' aria-label="Packed"><span>'+esc(p.text)+'</span>'+
+      '<button class="btn icon" data-act="del-pack" data-id="'+esc(p.id)+'" title="Delete" aria-label="Delete">✕</button></div>';}).join('')+'</div>';
+  return html;
+}
+function notesTab(t){
+  return '<div class="page-head" style="margin-bottom:8px"><h2>Notes</h2><span class="muted" id="notesStatus">Autosaves as you type</span></div>'+
+    '<textarea id="notesArea" class="notes-area" placeholder="Ideas, addresses, phrases, reminders…" aria-label="Trip notes">'+esc(t.notes)+'</textarea>';
+}
+function printHTML(t){
+  var home=homeCur(t), n=tripDays(t);
+  var h='<h1 class="pr-title">'+esc(t.emoji)+' '+esc(t.name)+'</h1><p class="pr-sub">'+(t.destination?esc(t.destination)+' · ':'')+esc(fmtRange(t.start,t.end))+' · '+n+(n===1?' day':' days')+(t.travellers?' · '+esc(t.travellers):'')+'</p>';
+  var inRange={}; dayList(t).forEach(function(d,i){
+    inRange[d]=1; var list=t.days[d]||[];
+    h+='<div class="pr-day"><h3>Day '+(i+1)+' · '+esc(fmtShort(d))+'</h3>'+(list.length?'<table>'+list.map(function(a){
+      return '<tr><td style="width:55px"><strong>'+esc(a.time||'')+'</strong></td><td><strong>'+esc(a.title)+'</strong>'+(a.place?'<br>'+esc(a.place):'')+(a.notes?'<br><em>'+esc(a.notes)+'</em>':'')+
+        (safeUrl(a.link)?'<br>'+esc(safeUrl(a.link)):'')+'</td><td style="width:110px;text-align:right">'+(a.cost?esc(money(a.cost,curOf(t,a))):'')+'</td></tr>';}).join('')+'</table>':'<span>—</span>')+'</div>';
+  });
+  Object.keys(t.days).sort().forEach(function(d){
+    if(inRange[d])return;
+    h+='<div class="pr-day"><h3>'+esc(fmtShort(d))+' '+parts(d).y+' (outside trip dates)</h3><table>'+t.days[d].map(function(a){return '<tr><td style="width:55px">'+esc(a.time||'')+'</td><td>'+esc(a.title)+'</td></tr>';}).join('')+'</table></div>';
+  });
+  if(t.bookings.length)h+='<div class="pr-book"><h3>Bookings</h3><table><tr><th>Type</th><th>Details</th><th>When</th><th>Ref</th></tr>'+
+    t.bookings.slice().sort(function(a,b){return (a.datetime||'9')<(b.datetime||'9')?-1:1;}).map(function(b){
+      return '<tr><td>'+esc(BTYPES[b.type].label)+'</td><td>'+esc(b.title)+(b.notes?'<br><em>'+esc(b.notes)+'</em>':'')+'</td><td>'+esc(fmtDT(b.datetime))+'</td><td>'+esc(b.conf)+'</td></tr>';}).join('')+'</table></div>';
+  return h;
+}
+
+/* ---------- render ---------- */
+function render(keepScroll){
+  flushNotes();
+  var r=route(), app=$('#app'), y=window.scrollY, html='', t=null;
+  var key=r.name+':'+(r.id||'')+':'+(r.tab||'');
+  if(r.name==='trip'){t=getTrip(r.id); if(!t){location.hash='#/';return;}}
+  html=(storageOK?'':'<div class="banner">⚠️ Your browser is blocking local storage, so changes will be lost when you close this page. Use Export to keep a copy.</div>');
+  if(!t){html+=homeView(); $('#printRoot').innerHTML=''; document.body.classList.remove('has-print'); document.title='Trip Planner';}
+  else{
+    var body={itinerary:itineraryTab,bookings:bookingsTab,budget:budgetTab,packing:packingTab,notes:notesTab}[r.tab](t);
+    html+=tripHead(t,r.tab)+body;
+    $('#printRoot').innerHTML=printHTML(t); document.body.classList.add('has-print'); document.title=t.name+' · Trip Planner';
+  }
+  app.innerHTML=html;
+  if(keepScroll||key===lastRouteKey)window.scrollTo(0,y); else window.scrollTo(0,0);
+  lastRouteKey=key;
+  if(focusAfter){var f=$(focusAfter); if(f)f.focus(); focusAfter=null;}
+  var ns=$('#notesArea'); if(ns)ns.addEventListener('input',onNotes);
+}
+
+/* notes autosave */
+var notesTimer=null,notesPending=null;
+function onNotes(e){
+  var r=route(); notesPending={id:r.id,text:e.target.value};
+  var s=$('#notesStatus'); if(s)s.textContent='Saving…';
+  clearTimeout(notesTimer); notesTimer=setTimeout(function(){flushNotes();var s2=$('#notesStatus');if(s2)s2.textContent='Saved ✓';},400);
+}
+function flushNotes(){
+  if(!notesPending)return; clearTimeout(notesTimer);
+  var t=getTrip(notesPending.id); if(t){t.notes=notesPending.text;save();} notesPending=null;
+}
+
+/* ---------- trip CRUD ---------- */
+function tripFields(){
+  return [
+    {name:'name',label:'Trip name',required:true,full:true,maxlength:120,placeholder:'e.g. Japan 2026'},
+    {name:'destination',label:'Destination(s)',full:true,maxlength:200,placeholder:'e.g. Tokyo, Kyoto'},
+    {name:'start',label:'Start date',type:'date',required:true},
+    {name:'end',label:'End date',type:'date',required:true},
+    {name:'travellers',label:'Travellers (optional)',full:true,maxlength:200,placeholder:'e.g. Max, Alvin'},
+    {name:'emoji',label:'Cover emoji',maxlength:8,chips:EMOJIS,full:true}
+  ];
+}
+function validateTrip(v){
+  if(!isDate(v.start)||!isDate(v.end))return 'Please pick valid start and end dates.';
+  if(v.end<v.start)return 'End date must be on or after the start date.';
+  if(diffDays(v.start,v.end)+1>MAX_DAYS)return 'Trips can be at most '+MAX_DAYS+' days long.';
+}
+function newTrip(){
+  openForm({title:'Add new trip',fields:tripFields(),values:{emoji:'✈️'},submitLabel:'Add trip',onSubmit:function(v){
+    var e=validateTrip(v); if(e)return e;
+    var t=normTrip({id:uid('t'),name:v.name,destination:v.destination,start:v.start,end:v.end,travellers:v.travellers,emoji:v.emoji});
+    state.trips.push(t); save(); go('#/trip/'+encodeURIComponent(t.id)+'/itinerary'); render();
+  }});
+}
+function editTrip(id){
+  var t=getTrip(id); if(!t)return;
+  openForm({title:'Edit trip',fields:tripFields(),values:t,onSubmit:function(v){
+    var e=validateTrip(v); if(e)return e;
+    t.name=v.name.slice(0,120);t.destination=v.destination;t.travellers=v.travellers;t.emoji=firstGrapheme(v.emoji)||'✈️';
+    t.start=v.start;t.end=v.end; save(); render(true);
+    var inR={}; dayList(t).forEach(function(d){inR[d]=1;});
+    var out=0; Object.keys(t.days).forEach(function(d){if(!inR[d])out+=t.days[d].length;});
+    if(out)toast(out+(out===1?' activity is':' activities are')+' now outside the trip dates (kept at the bottom of the itinerary).');
+  }});
+}
+function dupTrip(id){
+  var t=getTrip(id); if(!t)return;
+  var c=JSON.parse(JSON.stringify(t)); c.id=uid('t'); c.name=(t.name+' (copy)').slice(0,120);
+  Object.keys(c.days).forEach(function(d){c.days[d].forEach(function(a){a.id=uid('a');});});
+  c.bookings.forEach(function(b){b.id=uid('b');}); c.budget.expenses.forEach(function(e){e.id=uid('e');}); c.packing.forEach(function(p){p.id=uid('p');});
+  state.trips.push(c); save(); render(true); toast('Trip duplicated');
+}
+function delTrip(id){
+  var t=getTrip(id); if(!t)return;
+  openConfirm({title:'Delete this trip?',message:'“'+t.name+'” and everything in it (itinerary, bookings, budget, packing, notes) will be removed. You can export a backup first.',confirmLabel:'Delete trip',danger:true,onConfirm:function(){
+    snapshot(); state.trips=state.trips.filter(function(x){return x.id!==id;}); save(); render(true); toast('Trip deleted',true);
+  }});
+}
+
+/* ---------- activities ---------- */
+function currencyField(t,label){return {name:'currency',label:label||'Currency',list:'curList',maxlength:5,placeholder:homeCur(t)};}
+function actForm(t,date,act){
+  var inRange=date>=t.start&&date<=t.end, f=[
+    {name:'date',label:'Day',type:'date',required:true,min:inRange?t.start:'',max:inRange?t.end:''},
+    {name:'time',label:'Time',type:'time'},
+    {name:'title',label:'Title',required:true,full:true,maxlength:300,placeholder:'e.g. Visit teamLab'},
+    {name:'place',label:'Place',full:true,maxlength:300},
+    {name:'cost',label:'Cost',type:'number',step:'any',min:'0',inputmode:'decimal'},
+    currencyField(t),
+    {name:'link',label:'Link (optional)',full:true,maxlength:1000,placeholder:'https://…'},
+    {name:'notes',label:'Notes',type:'textarea',full:true}
+  ];
+  var vals=act?{date:date,time:act.time,title:act.title,place:act.place,cost:act.cost==null?'':act.cost,currency:act.currency||'',link:act.link,notes:act.notes}:{date:date,currency:''};
+  openForm({title:act?'Edit activity':'Add activity',fields:f,values:vals,submitLabel:act?'Save':'Add',onSubmit:function(v){
+    if(!isDate(v.date))return 'Pick a valid day.';
+    if(v.cost!==''&&num(v.cost)==null)return 'Cost must be a positive number.';
+    if(v.link&&!safeUrl(v.link))return 'That link does not look like a web address.';
+    var a={id:act?act.id:uid('a'),time:v.time,title:v.title,place:v.place,notes:v.notes,cost:num(v.cost),currency:cleanCur(v.currency),link:v.link?safeUrl(v.link):''};
+    if(act){ var old=t.days[date]; var i=old.indexOf(act);
+      if(v.date===date)old[i]=a; else {old.splice(i,1); if(!old.length)delete t.days[date]; (t.days[v.date]=t.days[v.date]||[]).push(a);} }
+    else (t.days[v.date]=t.days[v.date]||[]).push(a);
+    save(); render(true);
+  }});
+}
+function findAct(t,date,id){var l=t.days[date]||[];for(var i=0;i<l.length;i++)if(l[i].id===id)return {list:l,i:i,a:l[i]};return null;}
+
+/* ---------- bookings ---------- */
+function bookingForm(t,b){
+  var f=[
+    {name:'type',label:'Type',type:'select',options:BORDER.map(function(k){return {value:k,label:BTYPES[k].icon+' '+BTYPES[k].label};})},
+    {name:'datetime',label:'Date / time',type:'datetime-local'},
+    {name:'title',label:'Title',required:true,full:true,maxlength:300,placeholder:'e.g. SQ12 SIN → NRT'},
+    {name:'conf',label:'Confirmation no.',maxlength:100},
+    {name:'cost',label:'Cost',type:'number',step:'any',min:'0',inputmode:'decimal'},
+    currencyField(t),
+    {name:'notes',label:'Notes',type:'textarea',full:true}
+  ];
+  var vals=b?{type:b.type,datetime:b.datetime,title:b.title,conf:b.conf,cost:b.cost==null?'':b.cost,currency:b.currency||'',notes:b.notes}:{type:'flight',datetime:t.start+'T09:00'};
+  openForm({title:b?'Edit booking':'Add booking',fields:f,values:vals,submitLabel:b?'Save':'Add',onSubmit:function(v){
+    if(v.cost!==''&&num(v.cost)==null)return 'Cost must be a positive number.';
+    var nb=normBooking({id:b?b.id:uid('b'),type:v.type,title:v.title,datetime:v.datetime,conf:v.conf,cost:v.cost,currency:v.currency,notes:v.notes});
+    if(b)t.bookings[t.bookings.indexOf(b)]=nb; else t.bookings.push(nb);
+    save(); render(true);
+  }});
+}
+
+/* ---------- expenses & rates ---------- */
+function expForm(t,e){
+  var f=[
+    {name:'title',label:'Description',full:true,maxlength:300,placeholder:'e.g. Dinner at Ichiran'},
+    {name:'category',label:'Category',type:'select',options:CATS},
+    {name:'amount',label:'Amount',type:'number',step:'any',min:'0',required:true,inputmode:'decimal'},
+    currencyField(t)
+  ];
+  var vals=e?{title:e.title,category:e.category,amount:e.amount,currency:e.currency}:{category:'Food',currency:homeCur(t)};
+  openForm({title:e?'Edit expense':'Add expense',fields:f,values:vals,submitLabel:e?'Save':'Add',onSubmit:function(v){
+    var amt=num(v.amount); if(amt==null)return 'Amount must be a positive number.';
+    var ne={id:e?e.id:uid('e'),title:v.title,category:v.category,amount:amt,currency:cleanCur(v.currency)||homeCur(t)};
+    if(e)t.budget.expenses[t.budget.expenses.indexOf(e)]=ne; else t.budget.expenses.push(ne);
+    save(); render(true);
+  }});
+}
+function addRate(t){
+  openForm({title:'Add currency rate',fields:[
+    {name:'cur',label:'Currency code',list:'curList',required:true,maxlength:5,placeholder:'e.g. JPY'},
+    {name:'rate',label:'1 unit = ? '+homeCur(t),type:'number',step:'any',min:'0',required:true,inputmode:'decimal',placeholder:'e.g. 0.0087'}],
+    values:{},submitLabel:'Save',onSubmit:function(v){
+      var c=cleanCur(v.cur), r=parseFloat(v.rate);
+      if(!c)return 'Enter a currency code like USD.'; if(c===homeCur(t))return 'That is your home currency (rate is always 1).';
+      if(!isFinite(r)||r<=0)return 'Rate must be greater than 0.';
+      t.budget.rates[c]=r; save(); render(true);
+  }});
+}
+function setHome(t){
+  openForm({title:'Home currency',fields:[{name:'cur',label:'Currency code',list:'curList',required:true,maxlength:5,hint:'Totals are shown in this currency. Re-check your exchange rates after changing it.'}],
+    values:{cur:homeCur(t)},onSubmit:function(v){
+      var c=cleanCur(v.cur); if(!c)return 'Enter a currency code like SGD.';
+      t.budget.currency=c; delete t.budget.rates[c]; save(); render(true);
+  }});
+}
+
+/* ---------- export / import ---------- */
+function exportData(){
+  flushNotes();
+  var data={app:'trip-planner',version:1,exportedAt:new Date().toISOString(),trips:state.trips};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='trip-planner-backup-'+todayStr()+'.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);
+  toast('Backup downloaded');
+}
+function importText(text){
+  var data; try{data=JSON.parse(text);}catch(e){toast('That file is not valid JSON.');return;}
+  if(data&&!Array.isArray(data.trips)&&data.name)data={trips:[data]};
+  var incoming=normState(data).trips;
+  if(!incoming.length){toast('No valid trips found in that file.');return;}
+  var n=incoming.length;
+  openConfirm({title:'Import '+n+(n===1?' trip':' trips')+'?',message:'Merge adds them to your current trips (same trips are updated). Replace swaps everything on this device for the backup.',
+    confirmLabel:'Merge',alt:'Replace all',
+    onConfirm:function(){
+      snapshot(); flushNotes();
+      incoming.forEach(function(t){var i=state.trips.findIndex?state.trips.findIndex(function(x){return x.id===t.id;}):-1; if(i>=0)state.trips[i]=t; else state.trips.push(t);});
+      save(); go('#/'); render(); toast('Imported '+n+(n===1?' trip':' trips'),true);
+    },
+    onAlt:function(){snapshot(); state.trips=incoming; save(); go('#/'); render(); toast('Imported '+n+(n===1?' trip':' trips')+' (replaced)',true);}
+  });
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]'); if(!el)return;
+  var act=el.getAttribute('data-act'), id=el.getAttribute('data-id'), day=el.getAttribute('data-day');
+  var r=route(), t=r.name==='trip'?getTrip(r.id):null;
+  switch(act){
+    case 'toggle-theme':{var th=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';applyTheme(th);try{localStorage.setItem(THEME_KEY,th);}catch(x){}break;}
+    case 'export':exportData();break;
+    case 'import':$('#importFile').click();break;
+    case 'new-trip':newTrip();break;
+    case 'open-trip':go('#/trip/'+encodeURIComponent(id)+'/itinerary');break;
+    case 'edit-trip':editTrip(id);break;
+    case 'dup-trip':dupTrip(id);break;
+    case 'del-trip':delTrip(id);break;
+    case 'print':window.print();break;
+    case 'add-act':if(t)actForm(t,day,null);break;
+    case 'edit-act':{if(!t)break;var f=findAct(t,day,id);if(f)actForm(t,day,f.a);break;}
+    case 'del-act':{if(!t)break;var f2=findAct(t,day,id);if(!f2)break;snapshot();f2.list.splice(f2.i,1);if(!f2.list.length)delete t.days[day];save();render(true);toast('Activity deleted',true);break;}
+    case 'up-act':case 'down-act':{if(!t)break;var f3=findAct(t,day,id);if(!f3)break;var j=f3.i+(act==='up-act'?-1:1);
+      if(j<0||j>=f3.list.length)break;var tmp=f3.list[j];f3.list[j]=f3.list[f3.i];f3.list[f3.i]=tmp;save();render(true);break;}
+    case 'sort-day':{if(!t||!t.days[day])break;var arr=t.days[day].map(function(a,i){return {a:a,i:i};});
+      arr.sort(function(x,y){var tx=x.a.time||'99:99',ty=y.a.time||'99:99';return tx<ty?-1:tx>ty?1:x.i-y.i;});
+      t.days[day]=arr.map(function(x){return x.a;});save();render(true);break;}
+    case 'add-booking':if(t)bookingForm(t,null);break;
+    case 'edit-booking':if(t){var b=t.bookings.filter(function(x){return x.id===id;})[0];if(b)bookingForm(t,b);}break;
+    case 'del-booking':if(t){snapshot();t.bookings=t.bookings.filter(function(x){return x.id!==id;});save();render(true);toast('Booking deleted',true);}break;
+    case 'add-exp':if(t)expForm(t,null);break;
+    case 'edit-exp':if(t){var ex=t.budget.expenses.filter(function(x){return x.id===id;})[0];if(ex)expForm(t,ex);}break;
+    case 'del-exp':if(t){snapshot();t.budget.expenses=t.budget.expenses.filter(function(x){return x.id!==id;});save();render(true);toast('Expense deleted',true);}break;
+    case 'add-rate':if(t)addRate(t);break;
+    case 'set-home':if(t)setHome(t);break;
+    case 'del-pack':if(t){t.packing=t.packing.filter(function(x){return x.id!==id;});save();render(true);}break;
+    case 'reset-ticks':if(t){snapshot();t.packing.forEach(function(p){p.done=false;});save();render(true);toast('All items unticked',true);}break;
+  }
+});
+document.addEventListener('change',function(e){
+  var r=route(), t=r.name==='trip'?getTrip(r.id):null; if(!t)return;
+  var pk=e.target.getAttribute&&e.target.getAttribute('data-pack');
+  if(pk){t.packing.forEach(function(p){if(p.id===pk)p.done=e.target.checked;});save();render(true);return;}
+  var rc=e.target.getAttribute&&e.target.getAttribute('data-rate');
+  if(rc){var v=parseFloat(e.target.value); if(isFinite(v)&&v>0)t.budget.rates[rc]=v; else delete t.budget.rates[rc]; save(); render(true);}
+});
+document.addEventListener('submit',function(e){
+  var f=e.target; if(f.getAttribute('data-form')!=='pack')return; e.preventDefault();
+  var r=route(), t=getTrip(r.id); if(!t)return;
+  var inp=$('#packInput'), txt=inp.value.trim(); if(!txt){inp.focus();return;}
+  t.packing.push({id:uid('p'),text:txt.slice(0,200),done:false}); save(); focusAfter='#packInput'; render(true);
+});
+$('#importFile').addEventListener('change',function(e){
+  var file=e.target.files[0]; e.target.value=''; if(!file)return;
+  var rd=new FileReader(); rd.onload=function(){importText(String(rd.result));}; rd.onerror=function(){toast('Could not read that file.');}; rd.readAsText(file);
+});
+window.addEventListener('hashchange',function(){render();});
+window.addEventListener('beforeunload',flushNotes);
+window.addEventListener('pagehide',flushNotes);
+setInterval(function(){ if(!$('#modalRoot').firstChild&&!notesPending&&document.activeElement===document.body)render(true); },3600000);
+
+/* ---------- boot ---------- */
+var SEED={"id": "t-tokyo-chengdu-2026", "name": "Tokyo & Chengdu", "destination": "Tokyo, Chengdu", "start": "2026-12-08", "end": "2026-12-24", "travellers": "Maximus", "emoji": "🗾", "days": {"2026-12-08": [{"id": "a-zg054", "time": "00:40", "title": "Flight ZG054 Singapore → Tokyo Narita", "place": "Changi (SIN)", "notes": "ZIPAIR. Arrives Narita 08:25. Carry-on 7 kg; checked bag and seat are paid extras."}], "2026-12-17": [{"id": "a-3u3962", "time": "16:40", "title": "Flight 3U3962 Tokyo Narita → Chengdu Tianfu", "place": "Narita T1", "notes": "Sichuan Airlines. Arrives Tianfu T1 21:50. 23 kg checked bag included."}], "2026-12-23": [{"id": "a-3u3919", "time": "19:05", "title": "Flight 3U3919 Chengdu Tianfu → Singapore", "place": "Tianfu T1", "notes": "Sichuan Airlines. Arrives Changi T2 00:10 on 24 Dec."}]}, "bookings": [{"id": "b-zg054", "type": "flight", "title": "ZIPAIR ZG054 SIN → NRT", "datetime": "2026-12-08T00:40", "notes": "Dep Changi 00:40, arr Narita 08:25 (8 Dec). Carry-on within 7 kg."}, {"id": "b-3u3962", "type": "flight", "title": "Sichuan Airlines 3U3962 NRT → TFU", "datetime": "2026-12-17T16:40", "cost": 885.6, "currency": "SGD", "notes": "Narita T1 16:40, arr Chengdu Tianfu T1 21:50. Economy, 23 kg checked bag. Cost covers both Sichuan Airlines flights (565.00 fare + 320.60 taxes)."}, {"id": "b-3u3919", "type": "flight", "title": "Sichuan Airlines 3U3919 TFU → SIN", "datetime": "2026-12-23T19:05", "notes": "Tianfu T1 19:05, arr Changi T2 00:10 on 24 Dec. Economy, 23 kg checked bag. Paid together with 3U3962."}], "budget": {"currency": "SGD", "rates": {}, "expenses": []}, "packing": [], "notes": ""};
+function seedTrips(){try{if(localStorage.getItem('tripPlanner.seeded.'+SEED.id))return;var t=normTrip(SEED);if(t&&!getTrip(t.id)){state.trips.push(t);save();}localStorage.setItem('tripPlanner.seeded.'+SEED.id,'1');}catch(e){}}
+initTheme(); load(); seedTrips(); render();
+})();
+</script>
+</body>
+</html>

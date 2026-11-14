@@ -1128,7 +1128,7 @@ window.addEventListener('pagehide',flushNotes);
 setInterval(function(){ if(!$('#modalRoot').firstChild&&!notesPending&&document.activeElement===document.body)render(true); },3600000);
 
 /* ---------- boot ---------- */
-var SEED={"id": "t-tokyo-chengdu-2026", "name": "Tokyo & Chengdu", "destination": "Tokyo, Chengdu", "start": "2026-12-08", "end": "2026-12-24", "travellers": "Maximus", "emoji": "🗾", "days": {}, "bookings": [], "journeys": [{"id": "j-zg054", "mode": "flight", "carrier": "ZIPAIR", "number": "ZG054", "fromName": "Singapore Changi", "fromCode": "SIN", "fromTerm": "", "toName": "Tokyo Narita", "toCode": "NRT", "toTerm": "T1", "depDate": "2026-12-08", "depTime": "00:40", "arrDate": "2026-12-08", "arrTime": "08:25", "baggage": "Carry-on 7 kg; checked bag and seat are paid extras", "notes": ""}, {"id": "j-3u3962", "mode": "flight", "carrier": "Sichuan Airlines", "number": "3U3962", "fromName": "Tokyo Narita", "fromCode": "NRT", "fromTerm": "T1", "toName": "Chengdu Tianfu", "toCode": "TFU", "toTerm": "T1", "depDate": "2026-12-17", "depTime": "16:40", "arrDate": "2026-12-17", "arrTime": "21:50", "duration": 370, "cls": "Economy (Standard/Economy)", "vehicle": "Aircraft 32C", "baggage": "23 kg checked bag", "cost": 885.6, "currency": "SGD", "notes": "SGD 885.60 covers both Sichuan Airlines flights (3U3962 + 3U3919): fare 565.00 + taxes 320.60."}, {"id": "j-3u3919", "mode": "flight", "carrier": "Sichuan Airlines", "number": "3U3919", "fromName": "Chengdu Tianfu", "fromCode": "TFU", "fromTerm": "T1", "toName": "Singapore Changi", "toCode": "SIN", "toTerm": "T2", "depDate": "2026-12-23", "depTime": "19:05", "arrDate": "2026-12-24", "arrTime": "00:10", "duration": 305, "cls": "Economy", "vehicle": "Aircraft 32G", "baggage": "23 kg checked", "notes": "Paid together with 3U3962 (see its cost)."}], "budget": {"currency": "SGD", "rates": {}, "expenses": []}, "packing": [], "notes": ""};
+var SEED={"id": "t-tokyo-chengdu-2026", "name": "Tokyo & Chengdu", "destination": "Tokyo, Chengdu", "start": "2026-12-08", "end": "2026-12-24", "travellers": "Maximus", "emoji": "🗾", "days": {"2026-12-08": [{"id": "a-pickup", "time": "12:30", "title": "Pick up rental car (Nissan NOTE)", "place": "Yokohama (store TBC)", "notes": "Around 12:30, TBC: after the airport bus reaches YCAT at 12:05. Store and time to confirm.", "cost": null, "currency": "", "link": ""}, {"id": "a-drive-miura", "time": "", "title": "Drive Yokohama → Miura", "place": "Miura, Kanagawa", "notes": "After picking up the car.", "cost": null, "currency": "", "link": ""}], "2026-12-09": [{"id": "a-fish-miura-9", "time": "", "title": "Fishing in Miura", "place": "Miura, Kanagawa", "notes": "", "cost": null, "currency": "", "link": ""}], "2026-12-10": [{"id": "a-fish-miura-10", "time": "", "title": "Fishing in Miura", "place": "Miura, Kanagawa", "notes": "Miura until 10th or 11th", "cost": null, "currency": "", "link": ""}], "2026-12-11": [{"id": "a-miura-11", "time": "", "title": "Fishing in Miura / drive to Chiba (11th or 12th)", "place": "Miura, Kanagawa", "notes": "Plan: drive to Chiba on the 11th or the 12th.", "cost": null, "currency": "", "link": ""}], "2026-12-12": [{"id": "a-chiba-12", "time": "", "title": "Drive to Chiba (if not on 11th) / fishing in Chiba", "place": "Chiba", "notes": "", "cost": null, "currency": "", "link": ""}], "2026-12-13": [{"id": "a-chiba-13", "time": "", "title": "Fishing in Chiba", "place": "Chiba", "notes": "", "cost": null, "currency": "", "link": ""}], "2026-12-14": [{"id": "a-chiba-14", "time": "", "title": "Fishing in Chiba", "place": "Chiba", "notes": "", "cost": null, "currency": "", "link": ""}], "2026-12-15": [{"id": "a-chiba-15", "time": "", "title": "Fishing in Chiba", "place": "Chiba", "notes": "", "cost": null, "currency": "", "link": ""}], "2026-12-16": [{"id": "a-chiba-16", "time": "", "title": "Fishing in Chiba", "place": "Chiba", "notes": "", "cost": null, "currency": "", "link": ""}], "2026-12-17": [{"id": "a-drive-narita", "time": "", "title": "Drive to Narita Airport", "place": "Narita Airport", "notes": "Leave time for fuel and the car return before the 16:40 flight.", "cost": null, "currency": "", "link": ""}, {"id": "a-return", "time": "", "title": "Return rental car at Nissan Narita Airport store", "place": "Nissan Rent a Car, Narita Airport store", "notes": "Return before check-in for the 16:40 flight 3U3962. Return time to confirm.", "cost": null, "currency": "", "link": ""}]}, "bookings": [{"id": "b-nissan", "type": "transport", "title": "Nissan Rent a Car · Nissan NOTE", "datetime": "2026-12-08T12:30", "cost": 81000, "currency": "JPY", "notes": "JPY 81,000 nett. Pick-up around Yokohama on 8 Dec after the bus (time and store to confirm). Return at the Nissan Narita Airport store before check-in for the 17 Dec 16:40 flight 3U3962 (return time to confirm)."}], "journeys": [{"id": "j-zg054", "mode": "flight", "carrier": "ZIPAIR", "number": "ZG054", "fromName": "Singapore Changi", "fromCode": "SIN", "fromTerm": "", "toName": "Tokyo Narita", "toCode": "NRT", "toTerm": "T1", "depDate": "2026-12-08", "depTime": "00:40", "arrDate": "2026-12-08", "arrTime": "08:25", "baggage": "Carry-on 7 kg; checked bag and seat are paid extras", "notes": "", "duration": 405}, {"id": "j-limo", "mode": "bus", "carrier": "Airport Limousine Bus", "number": "Narita Airport Line", "fromName": "Narita Airport T1", "fromCode": "NRT", "fromTerm": "", "toName": "Yokohama City Air Terminal", "toCode": "YCAT", "toTerm": "", "depDate": "2026-12-08", "depTime": "10:25", "arrDate": "2026-12-08", "arrTime": "12:05", "duration": 100, "baggage": "", "link": "https://www.limousinebus.co.jp/en/", "notes": "1 pax. Booked via limousinebus.co.jp; seat reservation in progress (no booking ref yet)."}, {"id": "j-3u3962", "mode": "flight", "carrier": "Sichuan Airlines", "number": "3U3962", "fromName": "Tokyo Narita", "fromCode": "NRT", "fromTerm": "T1", "toName": "Chengdu Tianfu", "toCode": "TFU", "toTerm": "T1", "depDate": "2026-12-17", "depTime": "16:40", "arrDate": "2026-12-17", "arrTime": "21:50", "duration": 370, "cls": "Economy (Standard/Economy)", "vehicle": "Aircraft 32C", "baggage": "23 kg checked bag", "cost": 885.6, "currency": "SGD", "notes": "SGD 885.60 covers both Sichuan Airlines flights (3U3962 + 3U3919): fare 565.00 + taxes 320.60."}, {"id": "j-3u3919", "mode": "flight", "carrier": "Sichuan Airlines", "number": "3U3919", "fromName": "Chengdu Tianfu", "fromCode": "TFU", "fromTerm": "T1", "toName": "Singapore Changi", "toCode": "SIN", "toTerm": "T2", "depDate": "2026-12-23", "depTime": "19:05", "arrDate": "2026-12-24", "arrTime": "00:10", "duration": 305, "cls": "Economy", "vehicle": "Aircraft 32G", "baggage": "23 kg checked", "notes": "Paid together with 3U3962 (see its cost)."}], "budget": {"currency": "SGD", "rates": {"JPY": 0.00806}, "expenses": []}, "packing": [], "notes": "JPY → SGD rate set to 0.00806 (about 124 JPY per SGD, mid-market on 14 Nov 2026). It is approximate; adjust it under Budget → Exchange rates."};
 /* Old versions seeded flights as activities and bookings. Swap those seed-made items for journeys; keep anything added by hand. */
 var SEED_OLD={acts:['a-zg054','a-3u3962','a-3u3919'],books:{'b-zg054':'j-zg054','b-3u3962':'j-3u3962','b-3u3919':'j-3u3919'}};
 function upgradeSeedRaw(o){
@@ -1155,13 +1155,58 @@ function upgradeSeedRaw(o){
   });
   return changed;
 }
+var SEED_PREV=['j-zg054','j-3u3962','j-3u3919'];
+var SEED_PREV_ZG={mode:'flight',carrier:'ZIPAIR',number:'ZG054',fromName:'Singapore Changi',fromCode:'SIN',fromTerm:'',toName:'Tokyo Narita',toCode:'NRT',toTerm:'T1',
+  depDate:'2026-12-08',depTime:'00:40',arrDate:'2026-12-08',arrTime:'08:25',duration:null,cls:'',seat:'',coach:'',vehicle:'',baggage:'Carry-on 7 kg; checked bag and seat are paid extras',gate:'',link:'',cost:null,notes:''};
+var pendingToast='';
+function allSeedIds(){
+  var ids=['rate-JPY','fix-zg054-duration'];
+  SEED.journeys.forEach(function(j){ids.push(j.id);}); SEED.bookings.forEach(function(b){ids.push(b.id);});
+  Object.keys(SEED.days).forEach(function(d){SEED.days[d].forEach(function(a){ids.push(a.id);});});
+  return ids;
+}
+/* Adds seed items whose ids are new to this browser. Items already offered once (even if deleted since) are never re-added; edited items are never touched. */
+function applySeedItems(){
+  var t=getTrip(SEED.id); if(!t)return;
+  var key='tripPlanner.seedApplied.'+SEED.id, applied=null;
+  try{applied=JSON.parse(localStorage.getItem(key));}catch(e){}
+  if(!Array.isArray(applied))applied=SEED_PREV.slice();
+  var changed=false, added=0, copy=function(x){return JSON.parse(JSON.stringify(x));};
+  var has={};
+  t.journeys.forEach(function(j){has[j.id]=1;}); t.bookings.forEach(function(b){has[b.id]=1;});
+  Object.keys(t.days).forEach(function(d){t.days[d].forEach(function(a){has[a.id]=1;});});
+  var take=function(id){if(applied.indexOf(id)>=0)return false;applied.push(id);return !has[id];};
+  SEED.journeys.forEach(function(j){if(take(j.id)){var n=normJourney(copy(j));if(n){t.journeys.push(n);changed=true;added++;}}});
+  SEED.bookings.forEach(function(b){if(take(b.id)){var n=normBooking(copy(b));if(n){t.bookings.push(n);changed=true;added++;}}});
+  Object.keys(SEED.days).forEach(function(d){SEED.days[d].forEach(function(a){
+    if(take(a.id)){var n=normAct(copy(a));if(n){(t.days[d]=t.days[d]||[]).push(n);changed=true;added++;}}});});
+  if(applied.indexOf('rate-JPY')<0){
+    applied.push('rate-JPY');
+    if(!t.budget.rates.JPY&&SEED.budget.rates.JPY){t.budget.rates.JPY=SEED.budget.rates.JPY;changed=true;if(!added)added=-1;}
+  }
+  if(applied.indexOf('fix-zg054-duration')<0){
+    applied.push('fix-zg054-duration');
+    t.journeys.forEach(function(j){
+      if(j.id!=='j-zg054'||j.duration)return;
+      var same=Object.keys(SEED_PREV_ZG).every(function(k){var a=j[k],b=SEED_PREV_ZG[k];return (a==null||a==='')&&(b==null||b==='')||a===b;});
+      if(same){j.duration=405;changed=true;}
+    });
+  }
+  try{localStorage.setItem(key,JSON.stringify(applied));}catch(e){}
+  if(changed){save();if(added>0)pendingToast='Added the Japan ground plan to Tokyo & Chengdu ('+added+' items). JPY rate set to '+SEED.budget.rates.JPY+' SGD, which is approximate, so adjust it under Budget.';}
+}
 function seedTrips(){try{
   var f2='tripPlanner.seed2.'+SEED.id, f1='tripPlanner.seeded.'+SEED.id;
-  if(localStorage.getItem(f2))return;
-  if(!getTrip(SEED.id)&&!localStorage.getItem(f1)){var t=normTrip(SEED);if(t){state.trips.push(t);save();}}
-  localStorage.setItem(f1,'1'); localStorage.setItem(f2,'1');
+  if(!localStorage.getItem(f2)){
+    if(!getTrip(SEED.id)&&!localStorage.getItem(f1)){
+      var t=normTrip(SEED);
+      if(t){state.trips.push(t);save();try{localStorage.setItem('tripPlanner.seedApplied.'+SEED.id,JSON.stringify(allSeedIds()));}catch(e){}}
+    }
+    localStorage.setItem(f1,'1'); localStorage.setItem(f2,'1');
+  }
+  applySeedItems();
 }catch(e){}}
-initTheme(); load(); seedTrips(); render();
+initTheme(); load(); seedTrips(); render(); if(pendingToast)toast(pendingToast);
 })();
 </script>
 </body>
